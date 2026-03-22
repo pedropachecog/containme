@@ -1,0 +1,27 @@
+services:
+  agent:
+    build:
+      context: ..
+      dockerfile: docker/base.Dockerfile
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - TERM=xterm-256color
+    volumes:
+      - npm-cache:/home/agent/.npm
+      - pip-cache:/home/agent/.cache/pip
+      - cargo-cache:/home/agent/.cargo/registry
+    deploy:
+      resources:
+        limits:
+          memory: 8g
+          cpus: "4"
+    pids_limit: 256
+
+volumes:
+  npm-cache:
+  pip-cache:
+  cargo-cache:

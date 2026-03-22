@@ -1,0 +1,4 @@
+services:
+  agent:
+    volumes:
+      - ${CONTAINME_PROJECT_PATH:-.}:/workspace

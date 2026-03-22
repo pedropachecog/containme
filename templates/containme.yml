@@ -1,0 +1,65 @@
+# containme.yml — place in your project root
+# CLI flags override these defaults
+
+# Default agent
+agent: claude  # "claude" | "codex"
+
+# Default trust level
+trust: snapshot  # "snapshot" | "git" | "bind"
+
+# Keep container alive after agent exits
+persist: false
+
+# Network mode
+network: full  # "full" | "limited" | "none"
+
+# Resource limits
+resources:
+  memory: "8g"
+  cpus: 4
+  storage: "20g"
+
+# Network allowlist (only used when network: limited)
+# network_allowlist:
+#   - "*.anthropic.com"
+#   - "*.openai.com"
+#   - "registry.npmjs.org"
+#   - "pypi.org"
+#   - "github.com"
+
+# Additional environment variables
+# env:
+#   NODE_ENV: development
+
+# Additional mounts (always read-only unless specified)
+# mounts:
+#   - source: ./fixtures
+#     target: /data/fixtures
+#     readonly: true
+
+# Packages to install in the container at startup
+# setup:
+#   apt:
+#     - postgresql-client
+#   npm:
+#     - typescript
+#   pip:
+#     - pytest
+
+# Git sync settings (only used when trust: git)
+# git:
+#   branch_prefix: "containme"
+#   auto_push: true
+#   push_interval: 30
+
+# Agent-specific settings
+agents:
+  claude:
+    # api_url: "http://host.docker.internal:8080/v1"  # For local models
+    flags:
+      - "--dangerously-skip-permissions"
+
+  codex:
+    # api_url: "http://host.docker.internal:8080/v1"  # For local models
+    flags:
+      - "--dangerously-bypass-approvals-and-sandbox"

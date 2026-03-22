@@ -1,0 +1,36 @@
+{
+  "name": "containme",
+  "version": "0.1.0",
+  "description": "Safely run AI coding agents in Docker containers with configurable trust levels",
+  "type": "module",
+  "bin": {
+    "containme": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "docker",
+    "ai-agent",
+    "sandbox",
+    "claude-code",
+    "codex",
+    "containerization"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "chalk": "^5.4.1",
+    "yaml": "^2.7.0",
+    "inquirer": "^12.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

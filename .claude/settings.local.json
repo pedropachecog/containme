@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.docker.com)",
+      "mcp__searxng__web_url_read",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node dist/index.js run --help)"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+services:
+  agent:
+    build:
+      dockerfile: docker/claude.Dockerfile
+    environment:
+      - ANTHROPIC_API_KEY
+    volumes:
+      - claude-state:/home/agent/.claude
+    command: ["claude", "--dangerously-skip-permissions"]
+
+volumes:
+  claude-state:
