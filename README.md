@@ -73,7 +73,7 @@ Reset never deletes conversation history, memory, plans, or settings.
 | `-t, --trust <level>` | `bind` | Trust level (`bind`, `snapshot`, `git`) |
 | `-p, --persist` | false | Persist container between sessions |
 | `--isolated-caches` | false | Fresh npm/pip/cargo cache each session |
-| `--network <mode>` | `full` | Network mode (`full`, `limited`, `none`) |
+| `--network <mode>` | `full` | Network mode (`full`, `none`; `limited` not yet implemented) |
 | `--api-url <url>` | — | Custom API base URL (for local models) |
 | `--model <model>` | — | Model name override |
 | `--prompt <text>` | — | Initial prompt to send the agent |
@@ -102,11 +102,13 @@ CLI flags always override the config file.
 
 ## Trust levels
 
-| Level | What the agent can access | Use when |
-|-------|--------------------------|----------|
-| `bind` | Live read-write mount of your project | You want the agent to edit files directly |
-| `snapshot` | Copy of your project at session start | You want safety; review changes before applying |
-| `git` | Isolated git branch | You want full git history isolation |
+| Level | What the agent can access | Status |
+|-------|--------------------------|--------|
+| `bind` | Live read-write mount of your project | Available (default) |
+| `snapshot` | Copy of your project at session start | Not yet implemented |
+| `git` | Isolated git branch | Not yet implemented |
+
+Only `bind` is currently functional. Using `--trust snapshot` or `--trust git` will error at startup.
 
 ## Persistent data
 
@@ -184,6 +186,8 @@ src/
   agents/
     claude-code.ts            Claude agent config
     codex.ts                  Codex agent config
+  utils/
+    platform.ts               OS detection helpers
 docker/
   base.Dockerfile             Ubuntu 24.04 + Node + Playwright + dev tools
   claude.Dockerfile           extends base + Claude Code CLI + skills
