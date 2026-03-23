@@ -70,7 +70,7 @@ Reset never deletes conversation history, memory, plans, or settings.
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-a, --agent <agent>` | `claude` | Agent to use (`claude` or `codex`) |
-| `-t, --trust <level>` | `bind` | Trust level (`bind`, `snapshot`, `git`) |
+| `-t, --trust <level>` | `bind` | Trust level (`bind` only; `snapshot`/`git` not yet implemented) |
 | `-p, --persist` | false | Persist container between sessions |
 | `--isolated-caches` | false | Fresh npm/pip/cargo cache each session |
 | `--network <mode>` | `full` | Network mode (`full`, `none`; `limited` not yet implemented) |
@@ -155,9 +155,9 @@ Secrets (API keys) go to `$TMPDIR/containme-secrets-<session>.env` at mode `0600
 
 - Agent runs as non-root user (`agent`, UID 1000)
 - Capabilities dropped to minimum (`CHOWN`, `SETUID`, `SETGID`, `DAC_OVERRIDE`)
-- `sudo` restricted to `apt-get` only
+- `sudo` restricted to `apt` and `apt-get` only
 - API keys written to OS tmpdir with `0600` permissions, never in compose files
-- Bind mounts to `/`, `/etc`, `/proc`, `/sys`, `/run` are rejected
+- Bind mounts to `/`, `/etc`, `/proc`, `/sys`, `/run`, `/dev` are rejected
 - Package name validation rejects shell metacharacters
 - Session IDs are 128-bit random
 
