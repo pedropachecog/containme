@@ -4,4 +4,10 @@ services:
       dockerfile: docker/codex.Dockerfile
     environment:
       - OPENAI_API_KEY
+      - CODEX_HOME=/home/agent/.codex
+    volumes:
+      - codex-data:/home/agent/.codex
     command: ["codex", "--dangerously-bypass-approvals-and-sandbox"]
+
+volumes:
+  codex-data:

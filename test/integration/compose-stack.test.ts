@@ -80,6 +80,25 @@ describe("compose file stack", () => {
     expect(codex.services.agent.environment).toContain("OPENAI_API_KEY");
   });
 
+  it("codex overlay defines codex-data volume", () => {
+    const codex = loadYaml("docker-compose.codex.yml");
+    expect(codex.volumes).toHaveProperty("codex-data");
+  });
+
+  it("codex overlay sets CODEX_HOME", () => {
+    const codex = loadYaml("docker-compose.codex.yml");
+    expect(codex.services.agent.environment).toContain(
+      "CODEX_HOME=/home/agent/.codex",
+    );
+  });
+
+  it("codex overlay mounts codex-data volume", () => {
+    const codex = loadYaml("docker-compose.codex.yml");
+    expect(codex.services.agent.volumes).toContain(
+      "codex-data:/home/agent/.codex",
+    );
+  });
+
   it("all referenced compose files exist", () => {
     const files = [
       "docker-compose.yml",
@@ -144,6 +163,14 @@ describe("Dockerfile validation", () => {
       "utf-8",
     );
     expect(content).toMatch(/^FROM containme-base/m);
+  });
+
+  it("codex Dockerfile sets CODEX_HOME", () => {
+    const content = readFileSync(
+      path.join(dockerDir, "codex.Dockerfile"),
+      "utf-8",
+    );
+    expect(content).toContain('CODEX_HOME="/home/agent/.codex"');
   });
 
   it("entrypoint script exists", () => {
