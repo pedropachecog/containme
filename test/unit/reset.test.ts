@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildResetCommand, validateResetArgs, type ValidationResult } from "../../src/commands/reset.js";
+import { buildResetCommand, validateResetArgs } from "../../src/commands/reset.js";
 
 describe("reset argument validation", () => {
   it("rejects invalid target", () => {

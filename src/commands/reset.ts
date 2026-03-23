@@ -65,6 +65,10 @@ export function buildResetCommand(target: string, agent: string): ResetCommand {
   const home = AGENT_HOME[agentName];
   const volume = AGENT_VOLUME[agentName];
 
+  if (!home || !volume) {
+    throw new Error(`Unknown agent: "${agent}"`);
+  }
+
   const base: Omit<ResetCommand, "shellCommand"> = {
     image: "containme-base",
     volumeMount: `${volume}:${home}`,
@@ -93,6 +97,8 @@ export function buildResetCommand(target: string, agent: string): ResetCommand {
 
 function authResetShell(agent: AgentName, home: string): string {
   if (agent === "claude") {
+    // Delete OAuth credentials only. config.json is intentionally NOT deleted —
+    // it may contain non-auth settings (e.g., permissions, preferences).
     return `rm -f ${home}/.credentials.json && echo "Deleted ${home}/.credentials.json"`;
   }
   // codex
@@ -108,10 +114,11 @@ function mcpResetShell(home: string): string {
     "import json, os, sys",
     `p = '${configPath}'`,
     "if not os.path.exists(p): print('No config file found — nothing to reset'); sys.exit(0)",
-    "d = json.load(open(p))",
+    "d = json.loads(open(p).read())",
     "if 'mcpServers' not in d: print('No mcpServers key found — nothing to reset'); sys.exit(0)",
     "del d['mcpServers']",
-    "json.dump(d, open(p, 'w'), indent=2)",
+    "open(p + '.tmp', 'w').write(json.dumps(d, indent=2))",
+    "os.replace(p + '.tmp', p)",
     "print('Removed mcpServers from ' + p)",
   ].join("; ");
   return `python3 -c "${pyScript}"`;
