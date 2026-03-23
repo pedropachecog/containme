@@ -113,9 +113,9 @@ function mcpResetShell(home: string): string {
   const pyScript = [
     "import json, os, sys",
     `p = '${configPath}'`,
-    "if not os.path.exists(p): print('No config file found — nothing to reset'); sys.exit(0)",
+    "if not os.path.exists(p): sys.exit(print('No config file found — nothing to reset') or 0)",
     "d = json.loads(open(p).read())",
-    "if 'mcpServers' not in d: print('No mcpServers key found — nothing to reset'); sys.exit(0)",
+    "if 'mcpServers' not in d: sys.exit(print('No mcpServers key found — nothing to reset') or 0)",
     "del d['mcpServers']",
     "open(p + '.tmp', 'w').write(json.dumps(d, indent=2))",
     "os.replace(p + '.tmp', p)",
