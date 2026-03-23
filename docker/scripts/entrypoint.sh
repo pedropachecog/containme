@@ -16,13 +16,32 @@ if [ -n "$CLAUDE_CONFIG_DIR" ] && [ ! -L /home/agent/.claude.json ]; then
     ln -sf "$CLAUDE_CONFIG_DIR/.claude.json" /home/agent/.claude.json
 fi
 
-# Register searxng MCP server (points to host SearXNG instance)
-# Only adds it if not already configured — idempotent.
+# Register MCP servers — only adds if not already configured (idempotent)
 if command -v claude >/dev/null 2>&1; then
+    # SearXNG — points to host SearXNG instance
     if ! claude mcp get searxng >/dev/null 2>&1; then
         claude mcp add searxng \
             -e SEARXNG_URL=http://host.docker.internal:8086 \
             -- npx -y mcp-searxng
+    fi
+
+    # Playwright — configured with chromiumSandbox:false (required in Docker containers)
+    if ! claude mcp get playwright >/dev/null 2>&1; then
+        PLAYWRIGHT_MCP_CONFIG="${HOME}/.playwright-mcp.json"
+        cat > "$PLAYWRIGHT_MCP_CONFIG" <<'MCPEOF'
+{
+  "browser": {
+    "type": "chromium",
+    "chromiumSandbox": false,
+    "launchOptions": {
+      "args": ["--no-sandbox", "--disable-setuid-sandbox"]
+    }
+  }
+}
+MCPEOF
+        claude mcp add playwright \
+            -e PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers \
+            -- npx -y @playwright/mcp --config "$PLAYWRIGHT_MCP_CONFIG"
     fi
 fi
 

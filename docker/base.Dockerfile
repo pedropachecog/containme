@@ -52,7 +52,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN npx playwright install chromium \
     && mkdir -p /opt/google/chrome \
     && ln -sf $(find /opt/playwright-browsers -name chrome -type f | head -1) /opt/google/chrome/chrome \
-    && chmod -R a+r /opt/playwright-browsers \
+    && chmod -R a+rwx /opt/playwright-browsers \
     && chmod a+x /opt/google/chrome/chrome
 
 # Create non-root user "agent" with sudo access
