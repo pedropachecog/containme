@@ -6,8 +6,8 @@ services:
       - ANTHROPIC_API_KEY
       - CLAUDE_CONFIG_DIR=/home/agent/.claude
     volumes:
-      - claude-config:/home/agent/.claude
+      - claude-data:/home/agent/.claude
     command: ["claude", "--dangerously-skip-permissions"]
 
 volumes:
-  claude-config:
+  claude-data:

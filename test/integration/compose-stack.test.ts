@@ -54,9 +54,9 @@ describe("compose file stack", () => {
     expect(claude.services.agent.environment).toContain("ANTHROPIC_API_KEY");
   });
 
-  it("claude overlay defines claude-config volume", () => {
+  it("claude overlay defines claude-data volume", () => {
     const claude = loadYaml("docker-compose.claude.yml");
-    expect(claude.volumes).toHaveProperty("claude-config");
+    expect(claude.volumes).toHaveProperty("claude-data");
   });
 
   it("claude overlay sets CLAUDE_CONFIG_DIR", () => {
