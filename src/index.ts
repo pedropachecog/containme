@@ -6,6 +6,7 @@ import { Command } from "commander";
 import { parse as parseYaml } from "yaml";
 import { runCommand } from "./commands/run.js";
 import { runLocalCommand } from "./commands/run-local.js";
+import { executeReset } from "./commands/reset.js";
 
 /** Load containme.yml from the project directory and return defaults. */
 function loadConfig(projectPath: string): Record<string, unknown> {
@@ -89,6 +90,16 @@ program
       reconfigure: opts.reconfigure,
     });
   });
+
+const resetCmd = new Command("reset")
+  .description("Reset specific agent configuration without deleting data")
+  .argument("<target>", "What to reset (auth|mcp|cache)")
+  .option("-a, --agent <agent>", "Agent to reset (claude|codex)", "claude")
+  .action(async (target: string, opts) => {
+    await executeReset(target, opts.agent);
+  });
+
+program.addCommand(resetCmd);
 
 program.parse();
 
