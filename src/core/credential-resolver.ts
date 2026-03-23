@@ -51,7 +51,7 @@ export async function resolveCredentials(
     process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
 
   // Claude Code auth — detect host's .claude.json for first-run bootstrap
-  // After first run, the persistent claude-config volume takes over
+  // After first run, the persistent claude-data volume takes over
   if (agent === "claude") {
     const claudeJson = path.join(os.homedir(), ".claude.json");
     if (existsSync(claudeJson)) {
