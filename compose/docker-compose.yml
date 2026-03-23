@@ -10,15 +10,23 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - TERM=xterm-256color
+      - COLORTERM=truecolor
+      - FORCE_COLOR=1
     volumes:
       - npm-cache:/home/agent/.npm
       - pip-cache:/home/agent/.cache/pip
       - cargo-cache:/home/agent/.cargo/registry
-    deploy:
-      resources:
-        limits:
-          memory: 8g
-          cpus: "4"
+    # Security hardening (H1)
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+    # Resource limits (H2 — service-level keys work with docker compose run)
+    mem_limit: 8g
+    cpus: 4
     pids_limit: 256
 
 volumes:

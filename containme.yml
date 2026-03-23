@@ -1,0 +1,3 @@
+agent: claude
+api-url: http://host.docker.internal:8001
+model: unsloth/Qwen3.5-27B

@@ -4,9 +4,10 @@ services:
       dockerfile: docker/claude.Dockerfile
     environment:
       - ANTHROPIC_API_KEY
+      - CLAUDE_CONFIG_DIR=/home/agent/.claude
     volumes:
-      - claude-state:/home/agent/.claude
+      - claude-config:/home/agent/.claude
     command: ["claude", "--dangerously-skip-permissions"]
 
 volumes:
-  claude-state:
+  claude-config:

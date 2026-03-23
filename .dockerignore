@@ -1,0 +1,8 @@
+.git
+.containme
+node_modules
+dist
+.env
+*.tgz
+test
+.claude

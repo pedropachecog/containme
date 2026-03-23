@@ -1,0 +1,7 @@
+services:
+  agent:
+    build:
+      dockerfile: docker/codex.Dockerfile
+    environment:
+      - OPENAI_API_KEY
+    command: ["codex", "--dangerously-bypass-approvals-and-sandbox"]

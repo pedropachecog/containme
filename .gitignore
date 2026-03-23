@@ -3,3 +3,10 @@ dist/
 .containme/
 *.tgz
 .env
+
+# Docker BuildKit artifacts
+CACHED
+[internal]
+[node-source
+[stage-1
+exporting

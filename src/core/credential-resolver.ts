@@ -1,4 +1,8 @@
 import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { isWindows } from "../utils/platform.js";
 
 export interface Credentials {
   apiKey?: string;
@@ -6,6 +10,8 @@ export interface Credentials {
   gitUserName?: string;
   gitUserEmail?: string;
   githubToken?: string;
+  /** Host path to .claude.json for first-run bootstrap (Docker-compatible format) */
+  claudeConfigPath?: string;
 }
 
 function tryGitConfig(key: string): string | undefined {
@@ -43,6 +49,18 @@ export async function resolveCredentials(
   // GitHub token
   credentials.githubToken =
     process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
+
+  // Claude Code auth — detect host's .claude.json for first-run bootstrap
+  // After first run, the persistent claude-config volume takes over
+  if (agent === "claude") {
+    const claudeJson = path.join(os.homedir(), ".claude.json");
+    if (existsSync(claudeJson)) {
+      // Docker Compose on Windows needs forward slashes but drive letter preserved
+      credentials.claudeConfigPath = isWindows()
+        ? claudeJson.replace(/\\/g, "/")
+        : claudeJson;
+    }
+  }
 
   return credentials;
 }

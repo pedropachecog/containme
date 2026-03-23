@@ -39,3 +39,4 @@ export function resolveProjectPath(inputPath: string): string {
 export function toAbsolute(inputPath: string): string {
   return path.resolve(inputPath);
 }
+
