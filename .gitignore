@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .containme/
+.worktrees/
 *.tgz
 .env
 
