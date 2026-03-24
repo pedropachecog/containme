@@ -38,6 +38,10 @@ node dist/index.js run --api-url http://host.docker.internal:8080/v1  # Local mo
 - Non-root "agent" user (UID 1000) inside containers
 - API keys via env vars at runtime, never in images
 
+## Related Projects
+
+- **anthropic-image-proxy** (`D:\Pedro\Repos\exper\anthropic-image-proxy`): Standalone Node.js proxy that fixes Claude Code image reading with non-Anthropic providers (llama-server, vLLM, etc.). Promotes images from `tool_result` content to user message level. Run alongside containme when using local models: `npx anthropic-image-proxy --target http://192.168.1.190:8001`, then set `ANTHROPIC_BASE_URL=http://localhost:3456` when starting the agent.
+
 ## Current Status
 
 - **Phase 1 COMPLETE**: CLI scaffolding, base + claude Dockerfiles, compose files (base/claude/bind), run command, path resolver, credential resolver. Builds clean, CLI works.
