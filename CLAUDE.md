@@ -26,7 +26,7 @@ npm run build          # tsc → dist/
 node dist/index.js run --help
 node dist/index.js run .              # Run Claude Code on current dir (bind mount)
 node dist/index.js run -t snapshot .  # Snapshot mode (max safety)
-node dist/index.js run --api-url http://host.docker.internal:8080/v1  # Local model
+node dist/index.js run --api-url http://host.docker.internal:3456  # Via anthropic-image-proxy (default for run-local)
 ```
 
 ## Code Conventions

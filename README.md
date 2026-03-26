@@ -52,6 +52,18 @@ containme run-local .
 containme run-local --reconfigure .   # re-prompt to change saved config
 ```
 
+The default API URL is `http://host.docker.internal:3456`, which points at [anthropic-image-proxy](https://github.com/pedropachecog/anthropic-image-proxy) running on the host. Start the proxy before running:
+
+```bash
+# In one terminal — start the proxy pointing at your model server
+npx anthropic-image-proxy --target http://10.0.0.5:8000 --verbose
+
+# In another terminal — run the agent
+containme run-local .
+```
+
+The proxy fixes Claude Code image reading with non-Anthropic providers (llama-server, vLLM, etc.) by promoting images from `tool_result` content to user message level, where local models can see them.
+
 ### Reset agent configuration (without deleting data)
 
 ```bash

@@ -26,31 +26,31 @@ export async function runLocalCommand(
   let apiUrl = opts.apiUrl;
   let model = opts.model;
 
-  // Load saved config unless --reconfigure
-  if (!opts.reconfigure) {
-    const saved = getLocalModelConfig();
-    if (saved) {
-      apiUrl = apiUrl ?? saved["api-url"];
-      model = model ?? saved.model;
-    }
-  }
+  const saved = getLocalModelConfig();
 
-  // Prompt for missing values
-  if (!apiUrl || !model || opts.reconfigure) {
+  if (!opts.reconfigure && saved) {
+    // Config fully loaded — use it directly, no prompts
+    apiUrl = apiUrl ?? saved["api-url"];
+    model = model ?? saved.model;
+  } else {
+    // First run or --reconfigure: prompt with saved values as defaults
     console.log(chalk.cyan("[containme] Local model configuration"));
     console.log(chalk.gray(`Config file: ${getConfigPath()}\n`));
 
-    apiUrl = apiUrl ?? await input({
-      message: "API URL (e.g., http://host.docker.internal:8001)",
-      default: "http://host.docker.internal:8001",
+    apiUrl = await input({
+      message: "API URL",
+      default: apiUrl ?? saved?.["api-url"] ?? "http://host.docker.internal:3456",
+      validate: (v) => v.trim() ? true : "Required",
     });
 
-    model = model ?? await input({
-      message: "Model name (e.g., unsloth/Qwen3.5-27B)",
+    model = await input({
+      message: "Model name",
+      default: model ?? saved?.model,
+      validate: (v) => v.trim() ? true : "Required",
     });
 
-    saveLocalModelConfig(apiUrl, model);
-    console.log(chalk.green(`\nSaved to ${getConfigPath()}`));
+    saveLocalModelConfig(apiUrl.trim(), model.trim());
+    console.log(chalk.green(`Saved to ${getConfigPath()}\n`));
   }
 
   console.log(chalk.cyan(`[containme] Using local model: ${model} via ${apiUrl}`));
