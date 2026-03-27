@@ -6,10 +6,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends bubblewrap \
 RUN npm install -g @openai/codex
 USER agent
 
-RUN mkdir -p /home/agent/.codex
+RUN mkdir -p /home/agent/.codex /home/agent/.npm-global
 ENV CODEX_HOME="/home/agent/.codex"
 
-# Install skills and plugins
-RUN npx skills add https://github.com/vercel-labs/skills --skill find-skills
+# Install skills
+RUN npx skills add https://github.com/vercel-labs/skills --skill find-skills \
+    && npx skills add obra/superpowers
 
 CMD ["codex", "--dangerously-bypass-approvals-and-sandbox"]

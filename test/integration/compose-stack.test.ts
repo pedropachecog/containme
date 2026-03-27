@@ -147,12 +147,21 @@ describe("Dockerfile validation", () => {
     expect(content).not.toContain("claude.ai/install.sh");
   });
 
-  it("claude Dockerfile installs skills and superpowers", () => {
+  it("claude Dockerfile installs find-skills but not superpowers (replaced by get-shit-done via entrypoint)", () => {
     const content = readFileSync(
       path.join(dockerDir, "claude.Dockerfile"),
       "utf-8",
     );
     expect(content).toContain("npx skills add");
+    expect(content).toContain("find-skills");
+    expect(content).not.toContain("obra/superpowers");
+  });
+
+  it("codex Dockerfile installs find-skills and superpowers", () => {
+    const content = readFileSync(
+      path.join(dockerDir, "codex.Dockerfile"),
+      "utf-8",
+    );
     expect(content).toContain("obra/superpowers");
     expect(content).toContain("find-skills");
   });

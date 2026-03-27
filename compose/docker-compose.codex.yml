@@ -5,9 +5,13 @@ services:
     environment:
       - OPENAI_API_KEY
       - CODEX_HOME=/home/agent/.codex
+      - NPM_CONFIG_PREFIX=/home/agent/.npm-global
+      - PATH=/home/agent/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - codex-data:/home/agent/.codex
+      - user-npm:/home/agent/.npm-global
     command: ["codex", "--dangerously-bypass-approvals-and-sandbox"]
 
 volumes:
   codex-data:
+  user-npm:

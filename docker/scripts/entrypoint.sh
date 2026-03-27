@@ -16,8 +16,18 @@ if [ -n "$CLAUDE_CONFIG_DIR" ] && [ ! -L /home/agent/.claude.json ]; then
     ln -sf "$CLAUDE_CONFIG_DIR/.claude.json" /home/agent/.claude.json
 fi
 
-# Register MCP servers — only adds if not already configured (idempotent)
+# Install @neuledge/context to persistent user-npm volume if not already present
+if ! command -v context >/dev/null 2>&1; then
+    npm install -g @neuledge/context
+fi
+
+# Claude-specific setup
 if command -v claude >/dev/null 2>&1; then
+    # context MCP
+    if ! claude mcp get context >/dev/null 2>&1; then
+        claude mcp add context -- context serve
+    fi
+
     # SearXNG — points to host SearXNG instance
     if ! claude mcp get searxng >/dev/null 2>&1; then
         claude mcp add searxng \
@@ -42,6 +52,28 @@ MCPEOF
         claude mcp add playwright \
             -e PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers \
             -- npx -y @playwright/mcp --config "$PLAYWRIGHT_MCP_CONFIG"
+    fi
+
+    # get-shit-done — install from Pedro's fork if not already present
+    if [ ! -d "${HOME}/.claude/get-shit-done" ]; then
+        git clone https://github.com/pedropachecog/get-shit-done.git /tmp/gsd-install
+        node /tmp/gsd-install/bin/install.js --claude --global
+        rm -rf /tmp/gsd-install
+    fi
+fi
+
+# Codex-specific setup
+if command -v codex >/dev/null 2>&1; then
+    # context MCP via config.toml (idempotent)
+    CODEX_CONFIG="${CODEX_HOME:-${HOME}/.codex}/config.toml"
+    if [ ! -f "$CODEX_CONFIG" ] || ! grep -q '\[mcp_servers.context\]' "$CODEX_CONFIG"; then
+        mkdir -p "$(dirname "$CODEX_CONFIG")"
+        cat >> "$CODEX_CONFIG" <<'TOMLEOF'
+
+[mcp_servers.context]
+command = "context"
+args = ["serve"]
+TOMLEOF
     fi
 fi
 
