@@ -200,7 +200,7 @@ docker run --rm -v claude-config:/src -v claude-data:/dst alpine sh -c 'cp -a /s
 - **SearXNG MCP** — web search via local SearXNG instance at `host.docker.internal:8086`
 - **Playwright MCP** — browser control via MCP
 - **context MCP** — up-to-date library documentation via [neuledge/context](https://github.com/neuledge/context), auto-installed on first start
-- **get-shit-done** — workflow tool from [pedropachecog/get-shit-done](https://github.com/pedropachecog/get-shit-done), auto-installed on first start
+- **get-shit-done** — local-first fork of [get-shit-done](https://github.com/pedropachecog/get-shit-done) that replaces Anthropic API-dependent websearch/webfetch with [SearXNG](https://github.com/searxng/searxng) and [context](https://github.com/neuledge/context); auto-installed on first start
 - **find-skills** — skill discovery
 
 ### Codex container
