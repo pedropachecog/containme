@@ -163,18 +163,15 @@ Only `bind` is currently functional. Using `--trust snapshot` or `--trust git` w
 
 ## Installing MCP servers
 
-MCP servers must be installed as the **agent user** so they land in the persistent `user-npm` volume. Running as root writes to `/root/` which is ephemeral.
+The `@neuledge/context` MCP server is pre-configured and auto-installed on first session start. For additional MCP servers, install as the **agent user** so they land in the persistent `user-npm` volume — running as root writes to `/root/` which is ephemeral.
 
 ```bash
-# Open a shell as the agent user
 containme bash --as-agent
-
-# Inside the container:
-npm install -g @neuledge/context
-claude mcp add context -- context serve
+npm install -g <package>
+claude mcp add <name> -- <command>
 ```
 
-The `user-npm` volume persists across sessions, so the package survives container restarts.
+The `user-npm` volume persists across sessions, so installed packages survive container restarts.
 
 ## Persistent data
 
@@ -185,6 +182,7 @@ Agent data lives in named Docker volumes that are **never deleted by containme**
 | Claude Code | `claude-data` | `~/.claude` | Credentials, settings, conversation history, memory, MCP config |
 | Claude Code | `user-npm` | `~/.npm-global` | User-installed npm packages (MCP servers, etc.) |
 | Codex | `codex-data` | `~/.codex` | Auth, config, history |
+| Codex | `user-npm` | `~/.npm-global` | User-installed npm packages (MCP servers, etc.) |
 
 ### Migrating from an older claude-config volume
 
@@ -195,12 +193,20 @@ docker volume create claude-data
 docker run --rm -v claude-config:/src -v claude-data:/dst alpine sh -c 'cp -a /src/. /dst/'
 ```
 
-## Built-in capabilities (Claude container)
+## Built-in capabilities
 
+### Claude container
 - **Playwright + Chromium** — browser automation (pre-installed, no-sandbox config for Docker)
 - **SearXNG MCP** — web search via local SearXNG instance at `host.docker.internal:8086`
 - **Playwright MCP** — browser control via MCP
-- **Skills + Superpowers** — pre-installed agent skill frameworks
+- **context MCP** — up-to-date library documentation via [neuledge/context](https://github.com/neuledge/context), auto-installed on first start
+- **get-shit-done** — workflow tool from [pedropachecog/get-shit-done](https://github.com/pedropachecog/get-shit-done), auto-installed on first start
+- **find-skills** — skill discovery
+
+### Codex container
+- **context MCP** — same as Claude, registered via `~/.codex/config.toml` on first start
+- **superpowers** — agent skill framework
+- **find-skills** — skill discovery
 
 ## Architecture
 
