@@ -69,11 +69,14 @@ The proxy fixes Claude Code image reading with non-Anthropic providers (llama-se
 ### Open a shell in a running container
 
 ```bash
-containme bash                        # matches container for current directory
+containme bash                        # matches container for current directory (runs as root)
 containme bash /path/to/project       # match by project path
 containme bash --agent codex          # filter by agent type
 containme bash -c "gh auth status"    # run a single command non-interactively
+containme bash --as-agent             # exec as the agent user (UID 1000) instead of root
 ```
+
+If a matching session is already running, execs into it. If not, starts a fresh throwaway shell with the same volumes and credentials — no need to start a full agent session first.
 
 If multiple containers match, an interactive picker is shown.
 
@@ -120,6 +123,7 @@ Reset never deletes conversation history, memory, plans, or settings.
 |------|-------------|
 | `-a, --agent <agent>` | Filter by agent (`claude` or `codex`) |
 | `-c, --command <cmd>` | Run a single command instead of interactive shell |
+| `--as-agent` | Exec as the `agent` user (UID 1000) instead of root (default) |
 
 ### `containme build`
 
@@ -157,14 +161,30 @@ CLI flags always override the config file.
 
 Only `bind` is currently functional. Using `--trust snapshot` or `--trust git` will error at startup.
 
+## Installing MCP servers
+
+MCP servers must be installed as the **agent user** so they land in the persistent `user-npm` volume. Running as root writes to `/root/` which is ephemeral.
+
+```bash
+# Open a shell as the agent user
+containme bash --as-agent
+
+# Inside the container:
+npm install -g @neuledge/context
+claude mcp add context -- context serve
+```
+
+The `user-npm` volume persists across sessions, so the package survives container restarts.
+
 ## Persistent data
 
 Agent data lives in named Docker volumes that are **never deleted by containme**:
 
-| Agent | Volume | Contains |
-|-------|--------|----------|
-| Claude Code | `claude-data` | Credentials, settings, conversation history, memory, MCP config |
-| Codex | `codex-data` | Auth, config, history |
+| Agent | Volume | Mount | Contains |
+|-------|--------|-------|----------|
+| Claude Code | `claude-data` | `~/.claude` | Credentials, settings, conversation history, memory, MCP config |
+| Claude Code | `user-npm` | `~/.npm-global` | User-installed npm packages (MCP servers, etc.) |
+| Codex | `codex-data` | `~/.codex` | Auth, config, history |
 
 ### Migrating from an older claude-config volume
 

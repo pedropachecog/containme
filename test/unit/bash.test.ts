@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { displayPath, filterContainers } from "../../src/commands/bash.js";
+import { displayPath, filterContainers, resolveBashTarget } from "../../src/commands/bash.js";
 import type { ContainmeContainer } from "../../src/commands/bash.js";
 
 // ---------------------------------------------------------------------------
@@ -113,5 +113,58 @@ describe("filterContainers", () => {
     });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("aaa");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveBashTarget — pure decision logic: exec into existing vs start fresh
+// ---------------------------------------------------------------------------
+
+describe("resolveBashTarget", () => {
+  const alpha = makeContainer({
+    id: "aaa",
+    agent: "claude",
+    project: "/run/desktop/mnt/host/d/Repos/alpha",
+    workspaceMount: "/run/desktop/mnt/host/d/Repos/alpha",
+  });
+  const beta = makeContainer({
+    id: "bbb",
+    agent: "claude",
+    project: "/run/desktop/mnt/host/d/Repos/beta",
+    workspaceMount: "/run/desktop/mnt/host/d/Repos/beta",
+  });
+
+  it("returns exec action when exactly one container matches", () => {
+    const result = resolveBashTarget([alpha, beta], { dockerPath: "/run/desktop/mnt/host/d/Repos/alpha" });
+    expect(result).toEqual({ action: "exec", container: alpha });
+  });
+
+  it("returns fresh action when no containers are running", () => {
+    const result = resolveBashTarget([], {});
+    expect(result).toEqual({ action: "fresh" });
+  });
+
+  it("returns fresh action when no containers match the project path", () => {
+    const result = resolveBashTarget([alpha, beta], { dockerPath: "/run/desktop/mnt/host/d/Repos/gamma" });
+    expect(result).toEqual({ action: "fresh" });
+  });
+
+  it("returns pick action when multiple containers match", () => {
+    const result = resolveBashTarget([alpha, beta], {});
+    expect(result).toEqual({ action: "pick", containers: [alpha, beta] });
+  });
+
+  it("returns fresh action when agent filter leaves no containers", () => {
+    const result = resolveBashTarget([alpha], { agent: "codex" });
+    expect(result).toEqual({ action: "fresh" });
+  });
+
+  it("applies agent filter before path filter", () => {
+    const codexAlpha = makeContainer({ id: "ccc", agent: "codex", workspaceMount: "/run/desktop/mnt/host/d/Repos/alpha", project: "/run/desktop/mnt/host/d/Repos/alpha" });
+    const result = resolveBashTarget([alpha, codexAlpha], {
+      agent: "claude",
+      dockerPath: "/run/desktop/mnt/host/d/Repos/alpha",
+    });
+    expect(result).toEqual({ action: "exec", container: alpha });
   });
 });

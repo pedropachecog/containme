@@ -3,7 +3,6 @@ import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, rmSync, existsSync, readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { resolveProjectPath, toAbsolute } from "../core/path-resolver.js";
 import { resolveCredentials } from "../core/credential-resolver.js";
@@ -12,6 +11,7 @@ import type { RunOptions } from "../core/compose-generator.js";
 import { claudeCodeConfig } from "../agents/claude-code.js";
 import { codexConfig } from "../agents/codex.js";
 import type { AgentConfig } from "../agents/claude-code.js";
+import { getPackageRoot } from "../utils/package-root.js";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -27,27 +27,6 @@ const FORBIDDEN_MOUNT_TARGETS = ["/", "/etc", "/proc", "/sys", "/run", "/dev"];
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Walk up from a starting directory until we find a directory that contains package.json. */
-function findPackageRoot(startDir: string): string {
-  let dir = startDir;
-  while (true) {
-    const candidate = path.join(dir, "package.json");
-    if (existsSync(candidate)) {
-      return dir;
-    }
-    const parent = path.dirname(dir);
-    if (parent === dir) {
-      throw new Error("Could not locate the containme package root (no package.json found).");
-    }
-    dir = parent;
-  }
-}
-
-function getPackageRoot(): string {
-  const thisFile = fileURLToPath(import.meta.url);
-  const thisDir = path.dirname(thisFile);
-  return findPackageRoot(thisDir);
-}
 
 function agentConfigFor(name: string): AgentConfig {
   switch (name) {

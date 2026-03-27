@@ -1,17 +1,11 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { claudeCodeConfig } from "../agents/claude-code.js";
 import { codexConfig } from "../agents/codex.js";
+import { getPackageRoot } from "../utils/package-root.js";
 
 const AGENT_CONFIGS = [claudeCodeConfig, codexConfig];
-
-function getPackageRoot(): string {
-  const thisFile = fileURLToPath(import.meta.url);
-  // dist/commands/build.js → package root
-  return path.resolve(path.dirname(thisFile), "../..");
-}
 
 function spawnAsync(
   command: string,

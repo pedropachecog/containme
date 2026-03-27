@@ -6,8 +6,8 @@ RUN npm install -g @anthropic-ai/claude-code \
     && chown -R agent:agent /usr/local/lib/node_modules/@anthropic-ai/claude-code
 USER agent
 
-# Pre-create .claude directory so Docker copies agent:agent ownership to the volume
-RUN mkdir -p /home/agent/.claude
+# Pre-create directories so Docker initializes volumes with agent:agent ownership
+RUN mkdir -p /home/agent/.claude /home/agent/.npm-global
 
 # Auth and config persist via the claude-data volume mounted at ~/.claude
 ENV CLAUDE_CONFIG_DIR="/home/agent/.claude"

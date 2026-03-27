@@ -5,9 +5,13 @@ services:
     environment:
       - ANTHROPIC_API_KEY
       - CLAUDE_CONFIG_DIR=/home/agent/.claude
+      - NPM_CONFIG_PREFIX=/home/agent/.npm-global
+      - PATH=/home/agent/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - claude-data:/home/agent/.claude
+      - user-npm:/home/agent/.npm-global
     command: ["claude", "--dangerously-skip-permissions"]
 
 volumes:
   claude-data:
+  user-npm:

@@ -117,8 +117,9 @@ program
   .argument("[project-path]", "Project path to identify the container (default: current directory)")
   .option("-a, --agent <agent>", "Filter by agent (claude|codex)")
   .option("-c, --command <cmd>", "Run a single command instead of interactive shell")
+  .option("--as-agent", "Exec as the agent user (UID 1000) instead of root")
   .action(async (projectPath: string | undefined, opts) => {
-    await bashCommand({ projectPath: projectPath ?? ".", agent: opts.agent, command: opts.command });
+    await bashCommand({ projectPath: projectPath ?? ".", agent: opts.agent, command: opts.command, asAgent: opts.asAgent });
   });
 
 program.parse();
