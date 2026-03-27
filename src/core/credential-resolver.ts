@@ -46,9 +46,16 @@ export async function resolveCredentials(
   credentials.gitUserEmail =
     process.env.GIT_USER_EMAIL ?? tryGitConfig("user.email");
 
-  // GitHub token
-  credentials.githubToken =
-    process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
+  // GitHub token — env var first, then extract from gh CLI keyring
+  credentials.githubToken = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
+  if (!credentials.githubToken) {
+    try {
+      credentials.githubToken =
+        execSync("gh auth token", { encoding: "utf-8" }).trim() || undefined;
+    } catch {
+      // gh not installed or not logged in — silently skip
+    }
+  }
 
   // Claude Code auth — detect host's .claude.json for first-run bootstrap
   // After first run, the persistent claude-data volume takes over

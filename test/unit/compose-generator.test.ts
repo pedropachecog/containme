@@ -35,12 +35,13 @@ describe("generateComposeOverride", () => {
     expect(parsed.services.agent.container_name).toBe("containme-deadbeef");
   });
 
-  it("sets labels for session, agent, and trust", () => {
+  it("sets labels for session, agent, trust, and project", () => {
     const yaml = generateComposeOverride(makeOptions());
     const labels = parse(yaml).services.agent.labels;
     expect(labels["containme.session"]).toBe("abc12345");
     expect(labels["containme.agent"]).toBe("claude");
     expect(labels["containme.trust"]).toBe("bind");
+    expect(labels["containme.project"]).toBe("/d/test/project");
   });
 
   it("does NOT include API key in override YAML (secrets go in env_file)", () => {

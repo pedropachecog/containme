@@ -102,6 +102,7 @@ export function generateComposeOverride(options: RunOptions): string {
       "containme.session": sessionId,
       "containme.agent": agent.name,
       "containme.trust": trust,
+      "containme.project": options.projectPath,
     },
   };
 

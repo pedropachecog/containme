@@ -18,8 +18,10 @@ AI agents can delete files, run arbitrary commands, and make irreversible change
 git clone https://github.com/pedropachecog/containme
 cd containme
 npm install
-npm run build
+containme build
 ```
+
+`containme build` compiles TypeScript and builds all Docker images. Run it again any time you update containme.
 
 Then use `node dist/index.js` or add an alias:
 
@@ -64,6 +66,26 @@ containme run-local .
 
 The proxy fixes Claude Code image reading with non-Anthropic providers (llama-server, vLLM, etc.) by promoting images from `tool_result` content to user message level, where local models can see them.
 
+### Open a shell in a running container
+
+```bash
+containme bash                        # matches container for current directory
+containme bash /path/to/project       # match by project path
+containme bash --agent codex          # filter by agent type
+containme bash -c "gh auth status"    # run a single command non-interactively
+```
+
+If multiple containers match, an interactive picker is shown.
+
+### Rebuild Docker images
+
+```bash
+containme build                       # compile TypeScript + rebuild all agent images
+containme build --agent claude        # rebuild only the Claude image
+```
+
+Run after pulling updates or changing Dockerfiles.
+
 ### Reset agent configuration (without deleting data)
 
 ```bash
@@ -91,6 +113,19 @@ Reset never deletes conversation history, memory, plans, or settings.
 | `--prompt <text>` | — | Initial prompt to send the agent |
 | `-e, --env <KEY=VAL>` | — | Extra env vars (repeatable) |
 | `-m, --mount <path>` | — | Extra bind mounts (repeatable) |
+
+### `containme bash [project-path]`
+
+| Flag | Description |
+|------|-------------|
+| `-a, --agent <agent>` | Filter by agent (`claude` or `codex`) |
+| `-c, --command <cmd>` | Run a single command instead of interactive shell |
+
+### `containme build`
+
+| Flag | Description |
+|------|-------------|
+| `-a, --agent <agent>` | Build only one agent image (`claude` or `codex`) |
 
 ### `containme reset <target>`
 
@@ -176,7 +211,8 @@ Secrets (API keys) go to `$TMPDIR/containme-secrets-<session>.env` at mode `0600
 ## Development
 
 ```bash
-npm run build       # compile TypeScript → dist/
+containme build     # compile TypeScript + rebuild Docker images
+npm run build       # compile TypeScript only → dist/
 npm test            # run test suite (vitest)
 npm run test:watch  # watch mode
 ```
@@ -190,6 +226,8 @@ src/
     run.ts                    containme run — builds images, spawns docker compose
     run-local.ts              containme run-local — local model config + run
     reset.ts                  containme reset — targeted config resets
+    build.ts                  containme build — compile TypeScript + rebuild Docker images
+    bash.ts                   containme bash — open shell in a running container
   core/
     compose-generator.ts      generates session override YAML
     credential-resolver.ts    discovers API keys + git identity

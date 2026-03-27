@@ -84,4 +84,5 @@ if [ -n "$CONTAINME_PIP_PACKAGES" ]; then
     pip install $CONTAINME_PIP_PACKAGES
 fi
 
+clear
 exec "$@"

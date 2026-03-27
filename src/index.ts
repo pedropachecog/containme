@@ -7,6 +7,8 @@ import { parse as parseYaml } from "yaml";
 import { runCommand } from "./commands/run.js";
 import { runLocalCommand } from "./commands/run-local.js";
 import { executeReset } from "./commands/reset.js";
+import { buildCommand } from "./commands/build.js";
+import { bashCommand } from "./commands/bash.js";
 
 /** Load containme.yml from the project directory and return defaults. */
 function loadConfig(projectPath: string): Record<string, unknown> {
@@ -100,6 +102,24 @@ const resetCmd = new Command("reset")
   });
 
 program.addCommand(resetCmd);
+
+program
+  .command("build")
+  .description("Compile TypeScript and rebuild Docker images")
+  .option("-a, --agent <agent>", "Agent image to build (claude|codex), default: all")
+  .action(async (opts) => {
+    await buildCommand({ agent: opts.agent });
+  });
+
+program
+  .command("bash")
+  .description("Open a bash shell in a running containme container")
+  .argument("[project-path]", "Project path to identify the container (default: current directory)")
+  .option("-a, --agent <agent>", "Filter by agent (claude|codex)")
+  .option("-c, --command <cmd>", "Run a single command instead of interactive shell")
+  .action(async (projectPath: string | undefined, opts) => {
+    await bashCommand({ projectPath: projectPath ?? ".", agent: opts.agent, command: opts.command });
+  });
 
 program.parse();
 

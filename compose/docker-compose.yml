@@ -27,7 +27,8 @@ services:
     # Resource limits (H2 — service-level keys work with docker compose run)
     mem_limit: 8g
     cpus: 4
-    pids_limit: 256
+    pids_limit: 4096
+    shm_size: 2gb
 
 volumes:
   npm-cache:

@@ -2,7 +2,8 @@ FROM containme-base
 
 # Install Claude Code via npm (aligned with Anthropic's official devcontainer)
 USER root
-RUN npm install -g @anthropic-ai/claude-code
+RUN npm install -g @anthropic-ai/claude-code \
+    && chown -R agent:agent /usr/local/lib/node_modules/@anthropic-ai/claude-code
 USER agent
 
 # Pre-create .claude directory so Docker copies agent:agent ownership to the volume
