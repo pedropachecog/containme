@@ -7,7 +7,8 @@ dist/
 
 # Docker BuildKit artifacts
 CACHED
-[internal]
-[node-source
-[stage-1
+\[internal\]
+\[node-source
+\[stage-1
 exporting
+containme
