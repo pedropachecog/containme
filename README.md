@@ -18,15 +18,19 @@ AI agents can delete files, run arbitrary commands, and make irreversible change
 git clone https://github.com/pedropachecog/containme
 cd containme
 npm install
-containme build
+npm run build        # compile TypeScript → dist/
+npm link             # register the `containme` command globally
+containme build      # build Docker images
 ```
 
 `containme build` compiles TypeScript and builds all Docker images. Run it again any time you update containme.
 
-Then use `node dist/index.js` or add an alias:
+If you prefer not to use `npm link`, use `node dist/index.js` directly:
 
 ```bash
-alias containme="node /path/to/containme/dist/index.js"
+node dist/index.js build
+node dist/index.js run .
+# etc.
 ```
 
 ## Usage
@@ -177,27 +181,22 @@ The `user-npm` volume persists across sessions, so installed packages survive co
 
 Agent data lives in named Docker volumes that are **never deleted by containme**:
 
-| Agent | Volume | Mount | Contains |
-|-------|--------|-------|----------|
-| Claude Code | `claude-data` | `~/.claude` | Credentials, settings, conversation history, memory, MCP config |
-| Claude Code | `user-npm` | `~/.npm-global` | User-installed npm packages (MCP servers, etc.) |
-| Codex | `codex-data` | `~/.codex` | Auth, config, history |
-| Codex | `user-npm` | `~/.npm-global` | User-installed npm packages (MCP servers, etc.) |
+| Volume | Mount | Contains |
+|--------|-------|----------|
+| `claude-data` | `~/.claude` | Credentials, settings, conversation history, memory, MCP config |
+| `user-npm` | `~/.npm-global` | User-installed npm packages (MCP servers, etc.) — shared by Claude and Codex |
+| `codex-data` | `~/.codex` | Auth, config, history |
+| `npm-cache` | `~/.npm` | npm package cache (shared, speeds up installs) |
+| `pip-cache` | `~/.cache/pip` | pip package cache |
+| `cargo-cache` | `~/.cargo/registry` | Cargo package cache |
 
-### Migrating from an older claude-config volume
-
-If you used containme before the `claude-data` rename:
-
-```bash
-docker volume create claude-data
-docker run --rm -v claude-config:/src -v claude-data:/dst alpine sh -c 'cp -a /src/. /dst/'
-```
+The cache volumes (`npm-cache`, `pip-cache`, `cargo-cache`) are shared across sessions by default. Use `--isolated-caches` to give each session its own fresh caches.
 
 ## Built-in capabilities
 
 ### Claude container
 - **Playwright + Chromium** — browser automation (pre-installed, no-sandbox config for Docker)
-- **SearXNG MCP** — web search via local SearXNG instance at `host.docker.internal:8086`
+- **SearXNG MCP** — web search via a SearXNG instance you run on the host at port 8086 (configure with `containme run -e SEARXNG_URL=http://host.docker.internal:<port>` if using a different port)
 - **Playwright MCP** — browser control via MCP
 - **context MCP** — up-to-date library documentation via [neuledge/context](https://github.com/neuledge/context), auto-installed on first start
 - **get-shit-done** — local-first fork of [get-shit-done](https://github.com/pedropachecog/get-shit-done) that replaces Anthropic API-dependent websearch/webfetch with [SearXNG](https://github.com/searxng/searxng) and [context](https://github.com/neuledge/context); auto-installed on first start
@@ -264,6 +263,7 @@ src/
     codex.ts                  Codex agent config
   utils/
     platform.ts               OS detection helpers
+    package-root.ts           resolves containme install directory
 docker/
   base.Dockerfile             Ubuntu 24.04 + Node + Playwright + dev tools
   claude.Dockerfile           extends base + Claude Code CLI + skills
