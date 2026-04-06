@@ -12,8 +12,8 @@ function makeContainer(overrides: Partial<ContainmeContainer> = {}): ContainmeCo
     name: "compose-agent-run-abc123",
     agent: "claude",
     trust: "bind",
-    project: "/run/desktop/mnt/host/d/Pedro/Repos/myproject",
-    workspaceMount: "/run/desktop/mnt/host/d/Pedro/Repos/myproject",
+    project: "/run/desktop/mnt/host/d/Repos/myproject",
+    workspaceMount: "/run/desktop/mnt/host/d/Repos/myproject",
     status: "Up 2 hours",
     ...overrides,
   };
@@ -25,11 +25,11 @@ function makeContainer(overrides: Partial<ContainmeContainer> = {}): ContainmeCo
 
 describe("displayPath", () => {
   it("converts WSL Docker Desktop path to Windows format", () => {
-    expect(displayPath("/run/desktop/mnt/host/d/Pedro/Repos/foo")).toBe("D:/Pedro/Repos/foo");
+    expect(displayPath("/run/desktop/mnt/host/d/Repos/foo")).toBe("D:/Repos/foo");
   });
 
   it("uppercases drive letter", () => {
-    expect(displayPath("/run/desktop/mnt/host/c/Users/pmpg/project")).toBe("C:/Users/pmpg/project");
+    expect(displayPath("/run/desktop/mnt/host/c/Users/alice/project")).toBe("C:/Users/alice/project");
   });
 
   it("passes through non-WSL paths unchanged", () => {

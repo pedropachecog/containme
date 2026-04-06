@@ -49,7 +49,7 @@ node dist/index.js run --api-url http://host.docker.internal:3456  # Via anthrop
 
 ## Related Projects
 
-- **anthropic-image-proxy** (`D:\Pedro\Repos\exper\anthropic-image-proxy`): Standalone Node.js proxy that fixes Claude Code image reading with non-Anthropic providers (llama-server, vLLM, etc.). Promotes images from `tool_result` content to user message level. Run alongside containme when using local models: `npx anthropic-image-proxy --target http://192.168.1.190:8001`, then set `ANTHROPIC_BASE_URL=http://localhost:3456` when starting the agent.
+- **anthropic-image-proxy**: Standalone Node.js proxy that fixes Claude Code image reading with non-Anthropic providers (llama-server, vLLM, etc.). Promotes images from `tool_result` content to user message level. Run alongside containme when using local models: `npx anthropic-image-proxy --target http://<your-model-server>`, then set `ANTHROPIC_BASE_URL=http://localhost:3456` when starting the agent.
 
 ## Current Status
 
