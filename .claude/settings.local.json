@@ -50,7 +50,11 @@
       "Bash(curl -s https://raw.githubusercontent.com/BerriAI/litellm/main/litellm/llms/anthropic/experimental_pass_through/adapters/transformation.py)",
       "Bash(node index.js --target http://192.168.1.190:8001 --verbose)",
       "Bash(curl:*)",
-      "Bash(taskkill /PID 12852 /F)"
+      "Bash(taskkill /PID 12852 /F)",
+      "Bash(gh api:*)",
+      "Read(//c/Users/pmpg/.claude/**)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }

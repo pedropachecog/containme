@@ -218,6 +218,7 @@ export async function runCommand(
     const childEnv: Record<string, string> = {
       ...process.env as Record<string, string>,
       CONTAINME_PROJECT_PATH: dockerProjectPath,
+      CONTAINME_WORKSPACE_PATH: dockerProjectPath,
     };
 
     console.log(`[containme] Building agent image...`);

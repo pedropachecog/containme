@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: docker/base.Dockerfile
-    working_dir: /workspace
+    working_dir: ${CONTAINME_WORKSPACE_PATH:-/workspace}
     stdin_open: true
     tty: true
     extra_hosts:

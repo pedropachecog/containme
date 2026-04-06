@@ -54,11 +54,27 @@ MCPEOF
             -- npx -y @playwright/mcp --config "$PLAYWRIGHT_MCP_CONFIG"
     fi
 
-    # get-shit-done — install from Pedro's fork if not already present
-    if [ ! -d "${HOME}/.claude/get-shit-done" ]; then
-        git clone https://github.com/pedropachecog/get-shit-done.git /tmp/gsd-install
-        node /tmp/gsd-install/bin/install.js --claude --global
-        rm -rf /tmp/gsd-install
+    # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
+    git clone https://github.com/pedropachecog/get-shit-done.git /tmp/gsd-install 2>/dev/null \
+        && node /tmp/gsd-install/bin/install.js --claude --global \
+        && rm -rf /tmp/gsd-install \
+        || rm -rf /tmp/gsd-install
+
+    # GSD installs commands to ~/.claude/commands/gsd/*.md but Claude Code's
+    # Skill tool reads from ~/.claude/skills/<name>/SKILL.md. Mirror each GSD
+    # command as a skill so /gsd:* works with the Skill tool.
+    if [ -d "${HOME}/.claude/commands/gsd" ]; then
+        mkdir -p "${HOME}/.claude/skills"
+        for cmd in "${HOME}/.claude/commands/gsd"/*.md; do
+            [ -f "$cmd" ] || continue
+            name="gsd:$(basename "$cmd" .md)"
+            skill_dir="${HOME}/.claude/skills/${name}"
+            # Only copy if source is newer or dest doesn't exist
+            if [ ! -f "${skill_dir}/SKILL.md" ] || [ "$cmd" -nt "${skill_dir}/SKILL.md" ]; then
+                mkdir -p "$skill_dir"
+                cp "$cmd" "${skill_dir}/SKILL.md"
+            fi
+        done
     fi
 fi
 
@@ -97,7 +113,8 @@ fi
 
 # Git trust mode: clone from bare repo into workspace
 if [ "$CONTAINME_TRUST_MODE" = "git" ]; then
-    git clone /workspace.git /workspace --branch "containme/session-${CONTAINME_SESSION_ID}"
+    WORKSPACE="${CONTAINME_WORKSPACE_PATH:-/workspace}"
+    git clone "${WORKSPACE}.git" "${WORKSPACE}" --branch "containme/session-${CONTAINME_SESSION_ID}"
 fi
 
 # Install additional packages if requested (validated against injection)

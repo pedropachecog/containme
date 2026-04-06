@@ -1,4 +1,4 @@
 services:
   agent:
     volumes:
-      - ${CONTAINME_PROJECT_PATH:-.}:/workspace
+      - ${CONTAINME_PROJECT_PATH:-.}:${CONTAINME_WORKSPACE_PATH:-/workspace}

@@ -1,5 +1,14 @@
 # Containme
 
+## ABSOLUTE RULES — READ FIRST
+
+**NEVER suggest deleting Docker volumes.** The `claude-data` volume contains irreplaceable conversation history, memory, plans, and settings. Never suggest `docker volume rm`, `docker system prune`, or any operation that destroys a volume. Not as a last resort. Not with caveats. Never.
+
+If something is broken, fix it surgically:
+- Use `containme reset auth/mcp/cache` for targeted resets
+- Delete specific files inside the volume (always ask permission first)
+- Never the whole volume
+
 Toolkit for safely running AI coding agents (Claude Code, OpenAI Codex) inside Docker containers with configurable trust levels.
 
 ## Project Overview
