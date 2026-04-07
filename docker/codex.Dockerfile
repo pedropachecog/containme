@@ -13,4 +13,7 @@ ENV CODEX_HOME="/home/agent/.codex"
 RUN npx skills add https://github.com/vercel-labs/skills --skill find-skills -y -g \
     && npx skills add obra/superpowers -y -g
 
+# Install gsd (get-shit-done)
+RUN npx get-shit-done-cc --codex --global
+
 CMD ["codex", "--dangerously-bypass-approvals-and-sandbox"]
