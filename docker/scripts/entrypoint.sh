@@ -91,6 +91,9 @@ command = "context"
 args = ["serve"]
 TOMLEOF
     fi
+
+    # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
+    npx -y get-shit-done-cc --codex --global 2>/dev/null || true
 fi
 
 # Read Docker secrets if available
@@ -115,6 +118,24 @@ fi
 if [ "$CONTAINME_TRUST_MODE" = "git" ]; then
     WORKSPACE="${CONTAINME_WORKSPACE_PATH:-/workspace}"
     git clone "${WORKSPACE}.git" "${WORKSPACE}" --branch "containme/session-${CONTAINME_SESSION_ID}"
+fi
+
+# Reinstall persisted apt packages from previous sessions
+PERSIST_FILE="/home/agent/.npm-global/.containme-apt-packages"
+if [ -f "$PERSIST_FILE" ] && [ -s "$PERSIST_FILE" ]; then
+    PERSISTED_PKGS=$(tr '\n' ' ' < "$PERSIST_FILE")
+    validate_packages "$PERSISTED_PKGS"
+    # Only install packages not already present
+    MISSING_PKGS=""
+    for pkg in $PERSISTED_PKGS; do
+        if ! dpkg -s "$pkg" >/dev/null 2>&1; then
+            MISSING_PKGS="$MISSING_PKGS $pkg"
+        fi
+    done
+    if [ -n "$MISSING_PKGS" ]; then
+        echo "[containme] Reinstalling persisted packages:$MISSING_PKGS"
+        sudo apt-get update && sudo apt-get install -y $MISSING_PKGS
+    fi
 fi
 
 # Install additional packages if requested (validated against injection)

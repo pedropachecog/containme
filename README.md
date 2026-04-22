@@ -165,6 +165,24 @@ CLI flags always override the config file.
 
 Only `bind` is currently functional. Using `--trust snapshot` or `--trust git` will error at startup.
 
+## Installing packages that persist across restarts
+
+Containers are ephemeral — packages installed with `apt-get` at runtime are lost when the container restarts. Use `containme-install` instead:
+
+```bash
+containme-install pandoc libreoffice-writer-nogui
+```
+
+This installs the packages immediately and records them in a persistent list on the `user-npm` volume. On future container starts, any recorded packages not already in the image are automatically reinstalled.
+
+The pre-installed tools (pandoc, LibreOffice, Playwright, etc.) are baked into the Docker image and don't need `containme-install`. This mechanism is for additional packages the agent discovers it needs at runtime.
+
+You can also pre-specify packages via environment variable without persisting them:
+
+```bash
+containme run -e CONTAINME_APT_PACKAGES="imagemagick texlive-base" .
+```
+
 ## Installing MCP servers
 
 The `@neuledge/context` MCP server is pre-configured and auto-installed on first session start. For additional MCP servers, install as the **agent user** so they land in the persistent `user-npm` volume — running as root writes to `/root/` which is ephemeral.
@@ -194,8 +212,12 @@ The cache volumes (`npm-cache`, `pip-cache`, `cargo-cache`) are shared across se
 
 ## Built-in capabilities
 
-### Claude container
+### Pre-installed tools (all containers)
+- **Pandoc** — universal document converter (Markdown → DOCX, HTML, PDF, etc.)
+- **LibreOffice (headless)** — document rendering and format conversion (Writer, Calc, Impress — nogui variants for headless use). Useful for DOCX → PDF conversion and visual layout verification (`libreoffice --headless --convert-to pdf document.docx`)
 - **Playwright + Chromium** — browser automation (pre-installed, no-sandbox config for Docker)
+
+### Claude container
 - **SearXNG MCP** — web search via a SearXNG instance you run on the host at port 8086 (configure with `containme run -e SEARXNG_URL=http://host.docker.internal:<port>` if using a different port)
 - **Playwright MCP** — browser control via MCP
 - **context MCP** — up-to-date library documentation via [neuledge/context](https://github.com/neuledge/context), auto-installed on first start
@@ -265,10 +287,11 @@ src/
     platform.ts               OS detection helpers
     package-root.ts           resolves containme install directory
 docker/
-  base.Dockerfile             Ubuntu 24.04 + Node + Playwright + dev tools
+  base.Dockerfile             Ubuntu 24.04 + Node + Playwright + Pandoc + LibreOffice + dev tools
   claude.Dockerfile           extends base + Claude Code CLI + skills
   codex.Dockerfile            extends base + Codex CLI
-  scripts/entrypoint.sh       container startup (MCP registration, secrets, git config)
+  scripts/entrypoint.sh       container startup (MCP registration, secrets, git config, package restore)
+  scripts/containme-install   install apt packages and persist them across restarts
 compose/
   docker-compose.yml          base service definition
   docker-compose.claude.yml   Claude agent overlay (claude-data volume)

@@ -12,7 +12,4 @@ RUN mkdir -p /home/agent/.claude /home/agent/.npm-global
 # Auth and config persist via the claude-data volume mounted at ~/.claude
 ENV CLAUDE_CONFIG_DIR="/home/agent/.claude"
 
-# Install skills for Claude Code
-RUN npx skills add https://github.com/vercel-labs/skills --skill find-skills -y -g
-
 CMD ["claude", "--dangerously-skip-permissions"]

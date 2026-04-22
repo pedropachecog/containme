@@ -36,6 +36,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.12 \
         python3-pip \
         python3.12-venv \
+        pandoc \
+        libreoffice-writer-nogui \
+        libreoffice-calc-nogui \
+        libreoffice-impress-nogui \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
         -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
@@ -63,8 +67,10 @@ RUN userdel -r $(getent passwd 1000 | cut -d: -f1) 2>/dev/null || true \
     && chmod 0440 /etc/sudoers.d/agent
 
 COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/scripts/containme-install /usr/local/bin/containme-install
 RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
-    && chmod +x /usr/local/bin/entrypoint.sh
+    && sed -i 's/\r$//' /usr/local/bin/containme-install \
+    && chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/containme-install
 
 USER agent
 
