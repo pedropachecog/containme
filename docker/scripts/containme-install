@@ -1,0 +1,38 @@
+#!/bin/bash
+# containme-install — install apt packages and persist them across container restarts.
+#
+# Usage: containme-install <package> [package ...]
+#
+# Packages are installed immediately via apt-get and recorded in a persistent
+# file on the user-npm volume so entrypoint.sh can reinstall them on future
+# container starts.
+
+set -e
+
+PERSIST_FILE="/home/agent/.npm-global/.containme-apt-packages"
+
+if [ $# -eq 0 ]; then
+    echo "Usage: containme-install <package> [package ...]" >&2
+    exit 1
+fi
+
+# Validate package names — reject shell metacharacters
+for pkg in "$@"; do
+    if [[ "$pkg" =~ [^a-zA-Z0-9_.+-] ]]; then
+        echo "[containme] ERROR: Invalid package name: $pkg" >&2
+        exit 1
+    fi
+done
+
+# Install
+sudo apt-get update && sudo apt-get install -y "$@"
+
+# Record each package (deduplicated)
+touch "$PERSIST_FILE"
+for pkg in "$@"; do
+    if ! grep -qx "$pkg" "$PERSIST_FILE" 2>/dev/null; then
+        echo "$pkg" >> "$PERSIST_FILE"
+    fi
+done
+
+echo "[containme] Installed and persisted: $*"
