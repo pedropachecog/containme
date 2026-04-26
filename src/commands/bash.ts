@@ -1,7 +1,6 @@
 import { execSync, spawn } from "node:child_process";
-import { existsSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync } from "node:fs";
 import * as readline from "node:readline";
-import os from "node:os";
 import path from "node:path";
 import { resolveProjectPath, toAbsolute } from "../core/path-resolver.js";
 import { resolveCredentials } from "../core/credential-resolver.js";
@@ -169,8 +168,6 @@ async function startFreshShell(opts: BashCommandOptions): Promise<void> {
   const credentials = await resolveCredentials(agentName as "claude" | "codex");
   const agentConfig = agentName === "codex" ? (await import("../agents/codex.js")).codexConfig : claudeCodeConfig;
   const secretsContent = generateSecretsEnvFile(credentials, agentConfig);
-  const secretsFile = path.join(os.tmpdir(), `containme-shell-${Date.now()}.env`);
-  writeFileSync(secretsFile, secretsContent, { mode: 0o600 });
 
   const user = opts.asAgent ? "agent" : "root";
   const env: Record<string, string> = {
@@ -180,6 +177,12 @@ async function startFreshShell(opts: BashCommandOptions): Promise<void> {
   if (credentials.gitUserName) env.GIT_USER_NAME = credentials.gitUserName;
   if (credentials.gitUserEmail) env.GIT_USER_EMAIL = credentials.gitUserEmail;
 
+  const secretEnvArgs: string[] = [];
+  for (const line of secretsContent.split("\n")) {
+    if (!line || !line.includes("=")) continue;
+    secretEnvArgs.push("-e", line);
+  }
+
   const composeArgs = [
     "compose",
     "-f", path.join(composeDir, "docker-compose.yml"),
@@ -187,7 +190,7 @@ async function startFreshShell(opts: BashCommandOptions): Promise<void> {
     "-f", path.join(composeDir, "docker-compose.bind.yml"),
     "run", "--rm",
     "-u", user,
-    "--env-file", secretsFile,
+    ...secretEnvArgs,
     "-v", `${projectPath}:/workspace`,
     "agent", "bash",
   ];
@@ -200,7 +203,6 @@ async function startFreshShell(opts: BashCommandOptions): Promise<void> {
     process.exitCode = 1;
   });
   child.on("close", (code) => {
-    rmSync(secretsFile, { force: true });
     process.exitCode = code ?? 0;
   });
 }
