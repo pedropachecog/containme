@@ -55,10 +55,16 @@ MCPEOF
     fi
 
     # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
-    git clone https://github.com/pedropachecog/get-shit-done.git /tmp/gsd-install 2>/dev/null \
-        && node /tmp/gsd-install/bin/install.js --claude --global \
-        && rm -rf /tmp/gsd-install \
-        || rm -rf /tmp/gsd-install
+    (
+        set -e
+        git clone https://github.com/pedropachecog/get-shit-done.git /tmp/gsd-install
+        cd /tmp/gsd-install
+        npm ci
+        npm run build:hooks
+        npm run build:sdk
+        node bin/install.js --claude --global
+    )
+    rm -rf /tmp/gsd-install
 
     # GSD installs commands to ~/.claude/commands/gsd/*.md but Claude Code's
     # Skill tool reads from ~/.claude/skills/<name>/SKILL.md. Mirror each GSD
@@ -93,8 +99,14 @@ TOMLEOF
     fi
 
     # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
-    npx -y get-shit-done-cc --codex --global 2>/dev/null || true
+    npx get-shit-done-cc@latest --codex --global || true
 fi
+
+# Git safety: bind-mounted workspaces and GSD-created worktrees often have
+# mismatched ownership between the worktree and .git (host uid vs agent uid),
+# which trips Git's "dubious ownership" guard. Trust everything inside the
+# container — this is an isolated agent sandbox.
+git config --global --add safe.directory '*'
 
 # Read Docker secrets if available
 if [ -f /run/secrets/anthropic_api_key ]; then
