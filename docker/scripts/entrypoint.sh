@@ -16,7 +16,21 @@ if [ -n "$CLAUDE_CONFIG_DIR" ] && [ ! -L /home/agent/.claude.json ]; then
     ln -sf "$CLAUDE_CONFIG_DIR/.claude.json" /home/agent/.claude.json
 fi
 
-# Install @neuledge/context to persistent user-npm volume if not already present
+# Install agent CLIs and tooling into the persistent user-npm volume on first
+# run. Skipped on subsequent runs so Claude Code's / Codex's own auto-update
+# stays authoritative for the version.
+if [ "${CONTAINME_AGENT:-}" = "claude" ] && ! command -v claude >/dev/null 2>&1; then
+    # Clean stale package dir from a prior failed install so npm's atomic
+    # rename doesn't trip over a non-empty target.
+    rm -rf /home/agent/.npm-global/lib/node_modules/@anthropic-ai/claude-code
+    npm install -g @anthropic-ai/claude-code
+fi
+
+if [ "${CONTAINME_AGENT:-}" = "codex" ] && ! command -v codex >/dev/null 2>&1; then
+    rm -rf /home/agent/.npm-global/lib/node_modules/@openai/codex
+    npm install -g @openai/codex
+fi
+
 if ! command -v context >/dev/null 2>&1; then
     npm install -g @neuledge/context
 fi
@@ -55,6 +69,13 @@ MCPEOF
     fi
 
     # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
+    # Heal ownership/perms on the entire persistent ~/.claude tree so GSD's rmSync
+    # calls succeed regardless of which subdir prior installs poisoned (different UID
+    # or read-only mode). This is an isolated agent sandbox — agent should own it all.
+    if [ -d "${HOME}/.claude" ]; then
+        sudo chown -R agent:agent "${HOME}/.claude" 2>/dev/null || true
+        chmod -R u+w "${HOME}/.claude" 2>/dev/null || true
+    fi
     (
         set -e
         git clone https://github.com/pedropachecog/get-shit-done.git /tmp/gsd-install

@@ -63,7 +63,7 @@ RUN npx playwright install chromium \
 # Remove existing UID 1000 user (ubuntu) if present, then create agent
 RUN userdel -r $(getent passwd 1000 | cut -d: -f1) 2>/dev/null || true \
     && useradd -m -s /bin/bash -u 1000 agent \
-    && echo "agent ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt" > /etc/sudoers.d/agent \
+    && echo "agent ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt, /usr/bin/chown, /bin/chown" > /etc/sudoers.d/agent \
     && chmod 0440 /etc/sudoers.d/agent
 
 COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -74,8 +74,14 @@ RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
 
 USER agent
 
+# User-level npm prefix so global installs (and Claude Code / Codex auto-updates)
+# work without root. Persisted via the npm-global volume so updates survive
+# container recreation.
+ENV NPM_CONFIG_PREFIX=/home/agent/.npm-global
+ENV PATH=/home/agent/.npm-global/bin:$PATH
+
 # Create cache directories
-RUN mkdir -p /home/agent/.npm /home/agent/.cache/pip /home/agent/.cargo/registry
+RUN mkdir -p /home/agent/.npm /home/agent/.npm-global/bin /home/agent/.cache/pip /home/agent/.cargo/registry
 
 WORKDIR /workspace
 

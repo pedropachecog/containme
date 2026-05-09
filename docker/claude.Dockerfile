@@ -1,15 +1,13 @@
 FROM containme-base
 
-# Install Claude Code via npm (aligned with Anthropic's official devcontainer)
-USER root
-RUN npm install -g @anthropic-ai/claude-code \
-    && chown -R agent:agent /usr/local/lib/node_modules/@anthropic-ai/claude-code
-USER agent
+# Claude Code is installed at runtime by entrypoint.sh into the user-level
+# npm prefix (/home/agent/.npm-global), which lives on a persistent volume.
+# This lets Claude Code's built-in auto-update write without root and have
+# the new version persist across container recreates.
 
-# Pre-create directories so Docker initializes volumes with agent:agent ownership
-RUN mkdir -p /home/agent/.claude /home/agent/.npm-global
+RUN mkdir -p /home/agent/.claude
 
-# Auth and config persist via the claude-data volume mounted at ~/.claude
 ENV CLAUDE_CONFIG_DIR="/home/agent/.claude"
+ENV CONTAINME_AGENT=claude
 
 CMD ["claude", "--dangerously-skip-permissions"]
