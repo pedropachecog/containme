@@ -44,5 +44,12 @@ See: `.planning/config.json`
 - **GSD subagents not installed** in this environment — research/synthesis/roadmap subagents will fail until `npx get-shit-done-cc@latest --global` is run. Until then, planning agents must be generated inline.
 - **GSD SDK is local-only** at `.claude/get-shit-done/sdk/` (the global `gsd-sdk` on PATH is the wrong package — v0.1.0 autonomous-lifecycle CLI). Workflow `gsd-sdk query …` calls must use `node ./.claude/get-shit-done/sdk/dist/cli.js query …` instead. See memory: `research_gsd_v1_41_1_local_install_bug.md`.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260509-uzz | Rewrite README from scratch with current containme features | 2026-05-10 | 4909133 | [260509-uzz-rewrite-the-readme-from-scratch-with-eve](./quick/260509-uzz-rewrite-the-readme-from-scratch-with-eve/) |
+
 ---
 *State initialized: 2026-05-09*
+*Last activity: 2026-05-10 — Completed quick task 260509-uzz: rewrite README from scratch*
