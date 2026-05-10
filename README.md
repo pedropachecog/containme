@@ -1,6 +1,8 @@
 # containme
 
-Run AI coding agents — Claude Code and OpenAI Codex — safely inside disposable Docker containers with configurable trust levels and persistent agent data. Point it at a project, pick how much access the agent gets to host files (`bind` for live edits; `snapshot` and `git` are planned), and run agents with `--dangerously-skip-permissions` (Claude) or `--dangerously-bypass-approvals-and-sandbox` (Codex) without risking your real system. Pairs with [anthropic-image-proxy](https://github.com/pedropachecog/anthropic-image-proxy) for image-aware local-model workflows.
+Run AI coding agents — Claude Code and OpenAI Codex — safely inside disposable Docker containers with persistent agent data. Point it at a project, get a live read-write `bind` mount of your code into the container, and run agents with `--dangerously-skip-permissions` (Claude) or `--dangerously-bypass-approvals-and-sandbox` (Codex) without risking your real system. Pairs with [anthropic-image-proxy](https://github.com/pedropachecog/anthropic-image-proxy) for image-aware local-model workflows.
+
+See [ROADMAP.md](./ROADMAP.md) for upcoming trust levels and isolation features.
 
 > **Volume safety (absolute rule).** containme **never** deletes the named volumes that hold your agent's credentials, conversation history, memory, or settings (`claude-data`, `codex-data`, `user-npm`). Use `containme reset` for surgical resets — never `docker volume rm`.
 
@@ -57,10 +59,9 @@ Build and start an agent session. The project path defaults to `.`.
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-a, --agent <agent>` | `claude` | Agent to use (`claude` or `codex`) |
-| `-t, --trust <level>` | `bind` | Trust level (`bind` is implemented; `snapshot` and `git` are not yet implemented) |
-| `-p, --persist` | `false` | Persist container state between sessions (currently a passthrough flag — readable from `containme.yml`; no separate persist overlay yet) |
+| `-t, --trust <level>` | `bind` | Trust level — `bind` is the only implemented value today |
 | `--isolated-caches` | `false` | Use session-scoped npm/pip/cargo cache volumes (cleaned up on exit) |
-| `--network <mode>` | `full` | Network mode (`full`, `none`; `limited` is **not yet implemented** and falls back to full with a warning) |
+| `--network <mode>` | `full` | Network mode (`full` or `none`) |
 | `--api-url <url>` | — | Custom API base URL — used by local-model setups |
 | `--model <model>` | — | Model name override (e.g. `unsloth/Qwen3-Coder-Next`); appended to the agent's default command |
 | `--prompt <prompt>` | — | Initial prompt to send to the agent |
@@ -76,10 +77,9 @@ Same as `run`, but resolves `--api-url` and `--model` from `~/.containme/config.
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-a, --agent <agent>` | `claude` | Agent to use (`claude` or `codex`) |
-| `-t, --trust <level>` | `bind` | Trust level |
-| `-p, --persist` | `false` | Persist container state between sessions |
+| `-t, --trust <level>` | `bind` | Trust level (`bind`) |
 | `--isolated-caches` | `false` | Session-scoped caches |
-| `--network <mode>` | `full` | Network mode |
+| `--network <mode>` | `full` | Network mode (`full` or `none`) |
 | `--api-url <url>` | saved | Override the saved API URL for this run |
 | `--model <model>` | saved | Override the saved model name for this run |
 | `--prompt <prompt>` | — | Initial prompt to send to the agent |
@@ -127,10 +127,9 @@ Drop a `containme.yml` at your project root to set defaults. CLI flags always ov
 
 ```yaml
 agent: claude                   # claude | codex
-trust: bind                     # bind (snapshot/git planned)
-persist: false                  # bool
+trust: bind                     # bind
 isolated-caches: false          # bool
-network: full                   # full | none (limited planned)
+network: full                   # full | none
 api-url: http://host.docker.internal:3456
 model: unsloth/Qwen3-Coder-Next
 prompt: "Continue where we left off."
@@ -143,15 +142,9 @@ mount:                          # extra bind mounts in host:container[:opts] for
 
 The CLI reads the file with `yaml`'s `parse`; missing or unparseable files are silently ignored.
 
-## Trust levels
+## Trust level
 
-| Level | What the agent can access | Status |
-|-------|---------------------------|--------|
-| `bind` | Live read-write mount of your project at `/workspace` | Implemented (default) |
-| `git` | Clones a bare repo `${WORKSPACE}.git` into `${WORKSPACE}` on a per-session branch (`containme/session-<id>`) | Entrypoint logic exists; **not wired up** as a CLI value (no `docker-compose.git.yml` overlay in `compose/`) — selecting `--trust git` will fail at compose-file lookup |
-| `snapshot` | Copy of your project at session start, diff/approve flow | **Not yet implemented** — selecting `--trust snapshot` fails at compose-file lookup |
-
-The CLI accepts all three values today, but only `bind` has a matching `compose/docker-compose.<trust>.yml` overlay. Stick with `bind` until the others land.
+The agent gets a live read-write bind mount of your project at `/workspace`. Edits are immediate on the host. This is the only trust level shipped today; additional isolation modes (`snapshot`, `git`) are tracked in [ROADMAP.md](./ROADMAP.md).
 
 ## Persistent data (named volumes)
 
@@ -292,7 +285,7 @@ Compose files are read in order; later files override earlier ones. The override
 - API keys live in a `0600` env file in `$TMPDIR` and are referenced via `env_file:`; never in argv, never in the override YAML, never in the project directory
 - 128-bit random session IDs (`randomBytes(16)`)
 - `git config --global --add safe.directory '*'` is set inside the container only — needed because bind-mounted host paths trip Git's "dubious ownership" check
-- Network mode `none` adds `--no-deps` to `docker compose run`; `limited` is currently a no-op with a warning
+- Network mode `none` adds `--no-deps` to `docker compose run`
 
 ## File layout
 
