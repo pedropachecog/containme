@@ -48,7 +48,7 @@ See: `.planning/config.json`
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260509-uzz | Rewrite README from scratch with current containme features | 2026-05-10 | 4909133 | [260509-uzz-rewrite-the-readme-from-scratch-with-eve](./quick/260509-uzz-rewrite-the-readme-from-scratch-with-eve/) |
+| 260509-uzz | Rewrite README from scratch with current containme features | 2026-05-10 | 771ff31 | [260509-uzz-rewrite-the-readme-from-scratch-with-eve](./quick/260509-uzz-rewrite-the-readme-from-scratch-with-eve/) |
 
 ---
 *State initialized: 2026-05-09*
