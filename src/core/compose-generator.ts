@@ -74,6 +74,9 @@ export function generateComposeOverride(options: RunOptions): string {
     environment.GIT_USER_EMAIL = credentials.gitUserEmail;
   }
 
+  // JINA service URL
+  environment.JINA_BASE_URL = "http://host.docker.internal:3023";
+
   // Session ID
   environment.CONTAINME_SESSION_ID = sessionId;
 

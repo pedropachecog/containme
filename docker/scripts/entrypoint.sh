@@ -68,6 +68,13 @@ MCPEOF
             -- npx -y @playwright/mcp --config "$PLAYWRIGHT_MCP_CONFIG"
     fi
 
+    # Jina Reader — points to self-hosted Jina instance on host
+    if ! claude mcp get jina-reader >/dev/null 2>&1; then
+        claude mcp add jina-reader \
+            -e JINA_API_URL=http://host.docker.internal:3023 \
+            -- uvx --from git+https://github.com/graelo/jina-reader-mcp@v0.2.0 jina-reader-mcp
+    fi
+
     # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
     # Heal ownership/perms on the entire persistent ~/.claude tree so GSD's rmSync
     # calls succeed regardless of which subdir prior installs poisoned (different UID
