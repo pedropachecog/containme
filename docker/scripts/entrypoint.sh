@@ -127,7 +127,7 @@ TOMLEOF
     fi
 
     # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
-    npx get-shit-done-cc@latest --codex --global || true
+    npx @opengsd/get-shit-done-redux@latest --codex --global
 fi
 
 # Git safety: bind-mounted workspaces and GSD-created worktrees often have

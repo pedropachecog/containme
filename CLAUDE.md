@@ -93,7 +93,7 @@ A CLI toolkit for safely running AI coding agents (Claude Code, OpenAI Codex) in
 - **Secrets**: API keys via env file (0600 in `os.tmpdir()`), never in images, never in compose YAML, never in argv
 - **Shell-injection guard**: `CONTAINME_*_PACKAGES` env vars must remain allowlist-validated (`[a-zA-Z0-9_.+ -]` only)
 - **Backwards compatibility**: Pre-1.0 — breaking CLI changes allowed with a clear release note
-- **GSD install asymmetry locked-in**: Claude container clones `pedropachecog/get-shit-done` fork; Codex uses official `get-shit-done-cc@latest`. Do NOT swap Codex to the fork — explicit user instruction (memory: `feedback_codex_gsd_official_npm.md`).
+- **GSD install asymmetry locked-in**: Claude container clones `pedropachecog/get-shit-done` fork; Codex clones official `github.com/open-gsd/get-shit-done-redux`.
 <!-- GSD:project-end -->
 
 <!-- GSD:stack-start source:codebase/STACK.md -->
@@ -138,7 +138,7 @@ A CLI toolkit for safely running AI coding agents (Claude Code, OpenAI Codex) in
 - `@neuledge/context` — Always installed at runtime (`docker/scripts/entrypoint.sh:34-36`)
 - `@playwright/mcp` + Playwright Chromium — Browser automation MCP (`docker/base.Dockerfile:50,56-60`, `docker/scripts/entrypoint.sh:53-69`)
 - `mcp-searxng` — SearXNG MCP server (`docker/scripts/entrypoint.sh:46-50`)
-- `get-shit-done` (GSD) — Cloned from `https://github.com/pedropachecog/get-shit-done.git`, built and installed for Claude (`docker/scripts/entrypoint.sh:79-87`); `get-shit-done-cc@latest` from npm for Codex (`docker/scripts/entrypoint.sh:122-123`)
+- `get-shit-done` (GSD) — Cloned from `https://github.com/pedropachecog/get-shit-done.git` for Claude (`docker/scripts/entrypoint.sh:88-94`); installed via `npx @opengsd/get-shit-done-redux@latest` for Codex (`docker/scripts/entrypoint.sh:131`)
 - `bubblewrap` — Sandboxing for Codex (`docker/codex.Dockerfile:4-5`)
 - GitHub CLI `gh` (`docker/base.Dockerfile:43-47`)
 - `ripgrep`, `fd-find`, `jq`, `pandoc`, `libreoffice-{writer,calc,impress}-nogui` (`docker/base.Dockerfile:17-42`)

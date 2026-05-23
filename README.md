@@ -188,9 +188,9 @@ Agent data lives in named Docker volumes. **containme never deletes these** auto
 
 - `@openai/codex` — installed at runtime into `/home/agent/.npm-global`
 - `@neuledge/context` — registered as an MCP server via an idempotent append to `~/.codex/config.toml`
-- `get-shit-done` — installed from the **official `get-shit-done-cc@latest` npm package** (`npx get-shit-done-cc@latest --codex --global`). Codex deliberately uses the official npm release, not the fork — do not swap this.
+- `get-shit-done` — installed from the **official `@opengsd/get-shit-done-redux@latest` npm package** (`npx @opengsd/get-shit-done-redux@latest --codex --global` on every start).
 
-> Asymmetry note: the Claude container intentionally pulls GSD from a personal GitHub fork, while Codex uses the official npm package. Both are first-class — don't try to "normalize" them.
+> Asymmetry note: Claude pulls GSD from the `pedropachecog/get-shit-done` fork (via git clone), while Codex pulls from the official `@opengsd/get-shit-done-redux@latest` npm package. Both are intentional — don't try to "normalize" them.
 
 ## Installing extra apt / npm / pip packages
 
