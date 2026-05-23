@@ -127,6 +127,12 @@ TOMLEOF
     fi
 
     # get-shit-done — always install/update on startup (idempotent, ensures skills are current)
+    # Heal ownership/perms on persistent ~/.codex so GSD's rmSync calls succeed regardless
+    # of which UID/mode prior installs left behind. Isolated sandbox — agent owns it all.
+    if [ -d "${HOME}/.codex" ]; then
+        sudo chown -R agent:agent "${HOME}/.codex" 2>/dev/null || true
+        chmod -R u+w "${HOME}/.codex" 2>/dev/null || true
+    fi
     npx @opengsd/get-shit-done-redux@latest --codex --global
 fi
 
