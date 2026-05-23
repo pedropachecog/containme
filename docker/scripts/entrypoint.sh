@@ -90,7 +90,7 @@ MCPEOF
         npm ci
         npm run build:hooks
         npm run build:sdk
-        node bin/install.js --claude --global
+        yes | node bin/install.js --claude --global || true
     )
     rm -rf /tmp/gsd-install
 
