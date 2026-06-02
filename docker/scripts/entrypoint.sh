@@ -133,7 +133,7 @@ TOMLEOF
         sudo chown -R agent:agent "${HOME}/.codex" 2>/dev/null || true
         chmod -R u+w "${HOME}/.codex" 2>/dev/null || true
     fi
-    npx -y @opengsd/get-shit-done-redux@latest --codex --global
+    npx -y @opengsd/gsd-core@latest --codex --global
 fi
 
 # Git safety: bind-mounted workspaces and GSD-created worktrees often have
